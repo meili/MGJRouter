@@ -257,6 +257,9 @@ NSString *const MGJRouterParameterUserInfo = @"MGJRouterParameterUserInfo";
     
     if (subRoutes[@"_"]) {
         parameters[@"block"] = [subRoutes[@"_"] copy];
+    } else if (self.routes[pathComponents[0]][@"_"]) {
+        // 如果子路由中没有回调 从最外层路由中寻找
+        parameters[@"block"] = [self.routes[pathComponents[0]][@"_"] copy];
     }
     
     return parameters;
