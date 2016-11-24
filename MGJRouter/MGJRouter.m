@@ -240,6 +240,11 @@ NSString *const MGJRouterParameterUserInfo = @"MGJRouterParameterUserInfo";
         }
     }
     
+    // 如果没有找到该 pathComponent 对应的 handler，则以上一层的 handler 作为 fallback
+    if (!found && !subRoutes[@"_"]) {
+        return nil;
+    }
+    
     // Extract Params From Query.
     NSArray* pathInfo = [url componentsSeparatedByString:@"?"];
     if (pathInfo.count > 1) {
@@ -257,9 +262,15 @@ NSString *const MGJRouterParameterUserInfo = @"MGJRouterParameterUserInfo";
     
     if (subRoutes[@"_"]) {
         parameters[@"block"] = [subRoutes[@"_"] copy];
-    } else if (self.routes[pathComponents[0]][@"_"]) {
-        // 如果子路由中没有回调 从最外层路由中寻找
-        parameters[@"block"] = [self.routes[pathComponents[0]][@"_"] copy];
+    } else {
+        if ([pathComponents count]) {
+            if (self.routes[pathComponents[0]][@"_"]) {
+                // 如果子路由中没有回调 从最外层路由中寻找
+                parameters[@"block"] = [self.routes[pathComponents[0]][@"_"] copy];
+            }
+        } else {
+            return nil;
+        }
     }
     
     return parameters;
