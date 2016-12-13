@@ -203,34 +203,36 @@ NSString *const MGJRouterParameterUserInfo = @"MGJRouterParameterUserInfo";
     // borrowed from HHRouter(https://github.com/Huohua/HHRouter)
     for (NSString* pathComponent in pathComponents) {
         
-        // 对 key 进行排序，这样可以把 ~ 放到最后
-        NSArray *subRoutesKeys =[subRoutes.allKeys sortedArrayUsingComparator:^NSComparisonResult(NSString *obj1, NSString *obj2) {
-            return [obj1 compare:obj2];
-        }];
-        
-        for (NSString* key in subRoutesKeys) {
-            if ([key isEqualToString:pathComponent] || [key isEqualToString:MGJ_ROUTER_WILDCARD_CHARACTER]) {
-                found = YES;
-                subRoutes = subRoutes[key];
-                break;
-            } else if ([key hasPrefix:@":"]) {
-                found = YES;
-                subRoutes = subRoutes[key];
-                NSString *newKey = [key substringFromIndex:1];
-                NSString *newPathComponent = pathComponent;
-                // 再做一下特殊处理，比如 :id.html -> :id
-                if ([self.class checkIfContainsSpecialCharacter:key]) {
-                    NSCharacterSet *specialCharacterSet = [NSCharacterSet characterSetWithCharactersInString:specialCharacters];
-                    NSRange range = [key rangeOfCharacterFromSet:specialCharacterSet];
-                    if (range.location != NSNotFound) {
-                        // 把 pathComponent 后面的部分也去掉
-                        newKey = [newKey substringToIndex:range.location - 1];
-                        NSString *suffixToStrip = [key substringFromIndex:range.location];
-                        newPathComponent = [newPathComponent stringByReplacingOccurrencesOfString:suffixToStrip withString:@""];
+        if (subRoutes[pathComponent] != nil){
+            found = YES;
+            subRoutes = subRoutes[pathComponent];
+        }
+        else{
+            NSArray* specialKeys = [MGJRouter extractSpecialKey:subRoutes];
+            for (NSString* key in specialKeys) {
+                if ([key isEqualToString:MGJ_ROUTER_WILDCARD_CHARACTER]) {
+                    found = YES;
+                    subRoutes = subRoutes[key];
+                    break;
+                } else if ([key hasPrefix:@":"]) {
+                    found = YES;
+                    subRoutes = subRoutes[key];
+                    NSString *newKey = [key substringFromIndex:1];
+                    NSString *newPathComponent = pathComponent;
+                    // 再做一下特殊处理，比如 :id.html -> :id
+                    if ([self.class checkIfContainsSpecialCharacter:key]) {
+                        NSCharacterSet *specialCharacterSet = [NSCharacterSet characterSetWithCharactersInString:specialCharacters];
+                        NSRange range = [key rangeOfCharacterFromSet:specialCharacterSet];
+                        if (range.location != NSNotFound) {
+                            // 把 pathComponent 后面的部分也去掉
+                            newKey = [newKey substringToIndex:range.location - 1];
+                            NSString *suffixToStrip = [key substringFromIndex:range.location];
+                            newPathComponent = [newPathComponent stringByReplacingOccurrencesOfString:suffixToStrip withString:@""];
+                        }
                     }
+                    parameters[newKey] = newPathComponent;
+                    break;
                 }
-                parameters[newKey] = newPathComponent;
-                break;
             }
         }
         
@@ -324,6 +326,20 @@ NSString *const MGJRouterParameterUserInfo = @"MGJRouterParameterUserInfo";
 + (BOOL)checkIfContainsSpecialCharacter:(NSString *)checkedString {
     NSCharacterSet *specialCharactersSet = [NSCharacterSet characterSetWithCharactersInString:specialCharacters];
     return [checkedString rangeOfCharacterFromSet:specialCharactersSet].location != NSNotFound;
+}
+
++ (NSArray*)extractSpecialKey:(NSDictionary*)dict{
+    NSMutableArray* array = [[NSMutableArray alloc] init];
+    for (NSString* key in dict.allKeys){
+        if ([key isEqualToString:MGJ_ROUTER_WILDCARD_CHARACTER]) {
+            //通配符插入末尾
+            [array insertObject:key atIndex:array.count];
+        } else if ([key hasPrefix:@":"]) {
+            //id差入队首
+            [array insertObject:key atIndex:0];
+        }
+    }
+    return [array copy];
 }
 
 @end
