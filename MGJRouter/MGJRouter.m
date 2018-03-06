@@ -60,7 +60,7 @@ NSString *const MGJRouterParameterUserInfo = @"MGJRouterParameterUserInfo";
 + (void)openURL:(NSString *)URL withUserInfo:(NSDictionary *)userInfo completion:(void (^)(id result))completion
 {
     URL = [URL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    NSMutableDictionary *parameters = [[self sharedInstance] extractParametersFromURL:URL];
+    NSMutableDictionary *parameters = [[self sharedInstance] extractParametersFromURL:URL matchExactly:NO];
     
     [parameters enumerateKeysAndObjectsUsingBlock:^(id key, NSString *obj, BOOL *stop) {
         if ([obj isKindOfClass:[NSString class]]) {
@@ -85,7 +85,11 @@ NSString *const MGJRouterParameterUserInfo = @"MGJRouterParameterUserInfo";
 
 + (BOOL)canOpenURL:(NSString *)URL
 {
-    return [[self sharedInstance] extractParametersFromURL:URL] ? YES : NO;
+    return [[self sharedInstance] extractParametersFromURL:URL matchExactly:NO] ? YES : NO;
+}
+
++ (BOOL)canOpenURL:(NSString *)URL matchExactly:(BOOL)exactly {
+    return [[self sharedInstance] extractParametersFromURL:URL matchExactly:YES] ? YES : NO;
 }
 
 + (NSString *)generateURLWithPattern:(NSString *)pattern parameters:(NSArray *)parameters
@@ -131,7 +135,7 @@ NSString *const MGJRouterParameterUserInfo = @"MGJRouterParameterUserInfo";
     MGJRouter *router = [MGJRouter sharedInstance];
     
     URL = [URL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    NSMutableDictionary *parameters = [router extractParametersFromURL:URL];
+    NSMutableDictionary *parameters = [router extractParametersFromURL:URL matchExactly:NO];
     MGJRouterObjectHandler handler = parameters[@"block"];
     
     if (handler) {
@@ -187,7 +191,7 @@ NSString *const MGJRouterParameterUserInfo = @"MGJRouterParameterUserInfo";
 
 #pragma mark - Utils
 
-- (NSMutableDictionary *)extractParametersFromURL:(NSString *)url
+- (NSMutableDictionary *)extractParametersFromURL:(NSString *)url matchExactly:(BOOL)exactly
 {
     NSMutableDictionary* parameters = [NSMutableDictionary dictionary];
     
@@ -228,6 +232,8 @@ NSString *const MGJRouterParameterUserInfo = @"MGJRouterParameterUserInfo";
                 }
                 parameters[newKey] = newPathComponent;
                 break;
+            } else if (exactly) {
+                found = NO;
             }
         }
         
