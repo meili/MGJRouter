@@ -46,7 +46,7 @@ typedef id (^MGJRouterObjectHandler)(NSDictionary *routerParameters);
 /**
  *  取消注册某个 URL Pattern
  *
- *  @param URLPattern
+ *  @param URLPattern URLPattern
  */
 + (void)deregisterURLPattern:(NSString *)URLPattern;
 
@@ -70,7 +70,7 @@ typedef id (^MGJRouterObjectHandler)(NSDictionary *routerParameters);
  *  打开此 URL，带上附加信息，同时当操作完成时，执行额外的代码
  *
  *  @param URL        带 Scheme 的 URL，如 mgj://beauty/4
- *  @param parameters 附加参数
+ *  @param userInfo 附加参数
  *  @param completion URL 处理完成后的 callback，完成的判定跟具体的业务相关
  */
 + (void)openURL:(NSString *)URL withUserInfo:(NSDictionary *)userInfo completion:(void (^)(id result))completion;
@@ -78,26 +78,27 @@ typedef id (^MGJRouterObjectHandler)(NSDictionary *routerParameters);
 /**
  * 查找谁对某个 URL 感兴趣，如果有的话，返回一个 object
  *
- *  @param URL
+ *  @param URL 带 Scheme，如 mgj://beauty/3
  */
 + (id)objectForURL:(NSString *)URL;
 
 /**
  * 查找谁对某个 URL 感兴趣，如果有的话，返回一个 object
  *
- *  @param URL
- *  @param userInfo
+ *  @param URL 带 Scheme，如 mgj://beauty/3
+ *  @param userInfo 附加参数
  */
 + (id)objectForURL:(NSString *)URL withUserInfo:(NSDictionary *)userInfo;
 
 /**
  *  是否可以打开URL
  *
- *  @param URL
+ *  @param URL 带 Scheme，如 mgj://beauty/3
  *
- *  @return
+ *  @return 返回BOOL值
  */
 + (BOOL)canOpenURL:(NSString *)URL;
++ (BOOL)canOpenURL:(NSString *)URL matchExactly:(BOOL)exactly;
 
 /**
  *  调用此方法来拼接 urlpattern 和 parameters
@@ -109,7 +110,7 @@ typedef id (^MGJRouterObjectHandler)(NSDictionary *routerParameters);
  *  @param pattern    url pattern 比如 @"beauty/:id"
  *  @param parameters 一个数组，数量要跟 pattern 里的变量一致
  *
- *  @return
+ *  @return 返回生成的URL String
  */
 + (NSString *)generateURLWithPattern:(NSString *)pattern parameters:(NSArray *)parameters;
 @end
