@@ -98,6 +98,7 @@ typedef id (^MGJRouterObjectHandler)(NSDictionary *routerParameters);
  *  @return 返回BOOL值
  */
 + (BOOL)canOpenURL:(NSString *)URL;
++ (BOOL)canOpenURL:(NSString *)URL matchExactly:(BOOL)exactly;
 
 /**
  *  调用此方法来拼接 urlpattern 和 parameters
