@@ -89,7 +89,7 @@ NSString *const MGJRouterParameterUserInfo = @"MGJRouterParameterUserInfo";
 }
 
 + (BOOL)canOpenURL:(NSString *)URL matchExactly:(BOOL)exactly {
-    return [[self sharedInstance] extractParametersFromURL:URL matchExactly:YES] ? YES : NO;
+    return [[self sharedInstance] extractParametersFromURL:URL matchExactly:exactly] ? YES : NO;
 }
 
 + (NSString *)generateURLWithPattern:(NSString *)pattern parameters:(NSArray *)parameters
