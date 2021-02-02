@@ -59,7 +59,19 @@ NSString *const MGJRouterParameterUserInfo = @"MGJRouterParameterUserInfo";
 
 + (void)openURL:(NSString *)URL withUserInfo:(NSDictionary *)userInfo completion:(void (^)(id result))completion
 {
-    URL = [URL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    if (URL.length == 0 || [URL isEqualToString:@""] || URL == nil || URL == NULL || [URL isEqualToString:@"<null>"] || [URL isEqualToString:@"(null)"]) {
+        NSLog(@"\n###############################################\n-------- MGJRouter openURL URL不能为空 ---------\n##############################################");
+        return;
+    }
+    if (![URL containsString:@"://"]) {
+        NSLog(@"\n###############################################\n-------- MGJRouter openURL URL格式不正确,正确格式如(mgj://foo/bar)---------\n##############################################");
+        return;
+    }
+    if (@available(iOS 9.0, *)) {
+        URL = [URL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet  URLQueryAllowedCharacterSet]];
+    }else{
+        URL = [URL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    }
     NSMutableDictionary *parameters = [[self sharedInstance] extractParametersFromURL:URL matchExactly:NO];
     
     [parameters enumerateKeysAndObjectsUsingBlock:^(id key, NSString *obj, BOOL *stop) {
@@ -134,7 +146,11 @@ NSString *const MGJRouterParameterUserInfo = @"MGJRouterParameterUserInfo";
 {
     MGJRouter *router = [MGJRouter sharedInstance];
     
-    URL = [URL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    if (@available(iOS 9.0, *)) {
+        URL = [URL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet  URLQueryAllowedCharacterSet]];
+    }else{
+        URL = [URL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    }
     NSMutableDictionary *parameters = [router extractParametersFromURL:URL matchExactly:NO];
     MGJRouterObjectHandler handler = parameters[@"block"];
     
