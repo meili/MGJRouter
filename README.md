@@ -1,6 +1,10 @@
 # MGJRouter
 一个高效/灵活的 iOS URL Router
 
+### 2021-02-02 更新
+使用中发现 在 + (void)openURL:(NSString *)URL withUserInfo:(NSDictionary *)userInfo completion:(void (^)(id result))completion
+中传入 nil 会出闪退的问题
+
 ### 2015-08-22 更新
 
 #### 添加了同步获取 Object 的方法
